@@ -2,6 +2,10 @@ import h5py
 import numpy as np
 import random
 import tensorflow
+from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPooling2D, Dropout, Conv2DTranspose, concatenate
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.applications import VGG16
 
 with h5py.File('../ca2data/train.h5', 'r') as hf:
     X_data = hf['X'][:]
@@ -86,9 +90,7 @@ def get_unet_vgg16(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n
     model = Model(inputs=[input_img], outputs=[outputs])
     return model
 
-from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPooling2D, Dropout, Conv2DTranspose, concatenate
-from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
+
 
 class Model_unet:
     """
