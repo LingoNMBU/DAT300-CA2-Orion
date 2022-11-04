@@ -1,11 +1,12 @@
 import h5py
 import numpy as np
 import random
-import tensorflow
+import tensorflow as tf
 from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPooling2D, Dropout, Conv2DTranspose, concatenate
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.applications import VGG16
+from keras import backend as K
 
 with h5py.File('../ca2data/train.h5', 'r') as hf:
     X_data = hf['X'][:]
@@ -16,7 +17,6 @@ with h5py.File('../ca2data/test.h5', 'r') as hf:
     
 y_data[y_data != 0] = 1 
     
-    
 
 np.random.seed(123)
 
@@ -25,6 +25,42 @@ indices = np.random.permutation(X_data.shape[0])
 training_idx, test_idx = indices[:int(0.80*len(X_data))], indices[int(0.80*len(X_data)):]
 
 X_train, X_test, y_train, y_test = X_data[training_idx,:], X_data[test_idx,:], y_data[training_idx,:], y_data[test_idx,:]
+
+
+
+def recall_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
+
+def precision_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+def f1_m(y_true, y_pred):
+    precision = precision_m(y_true, y_pred)
+    recall = recall_m(y_true, y_pred)
+    return 2*((precision*recall)/(precision+recall+K.epsilon()))
+
+
+def f1_loss(true, pred):
+    true= K.cast(true, tf.float32)
+    ground_positives = K.sum(true, axis=0) + K.epsilon()       # = TP + FN
+    pred_positives = K.sum(pred, axis=0) + K.epsilon()         # = TP + FP
+    true_positives = K.sum(true * pred, axis=0) + K.epsilon()  # = TP
+    
+    precision = true_positives / pred_positives 
+    recall = true_positives / ground_positives
+    
+    f1 = 2 * (precision * recall) / (precision + recall + K.epsilon())
+    #soft_f1 = 2*tp / (2*tp + fn + fp + 1e-16)
+    
+    #f1 = tf.where(tf.math.is_nan(f1), tf.zeros_like(f1), f1)
+    
+    return 1 - K.mean(f1)
 
 
 
