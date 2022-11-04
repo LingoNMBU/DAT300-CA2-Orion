@@ -1,7 +1,8 @@
 import h5py
 import numpy as np
 import random
-import tensorflow as tf
+import tensorflow
+import keras
 from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPooling2D, Dropout, Conv2DTranspose, concatenate
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
@@ -47,7 +48,7 @@ def f1_m(y_true, y_pred):
 
 
 def f1_loss(true, pred):
-    true= K.cast(true, tf.float32)
+    true= K.cast(true, tensorflow.float32)
     ground_positives = K.sum(true, axis=0) + K.epsilon()       # = TP + FN
     pred_positives = K.sum(pred, axis=0) + K.epsilon()         # = TP + FP
     true_positives = K.sum(true * pred, axis=0) + K.epsilon()  # = TP
