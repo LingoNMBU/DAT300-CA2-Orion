@@ -2,10 +2,10 @@ import h5py
 import numpy as np
 import random
 
-with h5py.File('./ca2data/train.h5', 'r') as hf:
+with h5py.File('../ca2data/train.h5', 'r') as hf:
     X_data = hf['X'][:]
     y_data = hf['y'][:]
-with h5py.File('./ca2data/test.h5', 'r') as hf:
+with h5py.File('../ca2data/test.h5', 'r') as hf:
     kaggle = hf["X"][:]
     
     
