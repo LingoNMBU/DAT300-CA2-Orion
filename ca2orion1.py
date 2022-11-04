@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
 import random
+import tensorflow
 
 with h5py.File('../ca2data/train.h5', 'r') as hf:
     X_data = hf['X'][:]
@@ -84,6 +85,41 @@ def get_unet_vgg16(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n
 
     model = Model(inputs=[input_img], outputs=[outputs])
     return model
+
+from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPooling2D, Dropout, Conv2DTranspose, concatenate
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+
+class Model_unet:
+    """
+    Class to model different instances of unet with unique hyperparameter combinations.
+    """
+    def __init__(self, model_function, n_filters = 16, dropout = 0, learning_rate = 0.001, batch_size = 50):
+        self.model_function = model_function
+        self.n_filters = n_filters
+        self.dropout = dropout
+        self.learning_rate = learning_rate
+        self.batch_size = batch_size
+        
+
+    def fit(self):
+        input_img = Input(shape=(128,128,3))
+        model_unet = self.model_function(input_img, n_filters = self.n_filters, dropout = self.dropout, 
+                                              batchnorm = True, n_classes = 1, class_activation = 'sigmoid')
+
+        model_unet.compile(optimizer = Adam(learning_rate = self.learning_rate), loss = "binary_crossentropy", metrics = ['accuracy', f1_m])
+        results = model_unet.fit(X_train,y_train,validation_split=0.2,verbose=1, epochs = 20, batch_size = self.batch_size)
+        
+        history_dict = results.history
+        self.f1 = history_dict["f1_m"]
+        self.f1_val = history_dict["val_f1_m"]
+        self.loss = history_dict["loss"]
+        self.loss_val = history_dict["val_loss"]
+        
+        self.model = model_unet
+    
+    def get_model_name(self):
+        return self.model_function.__name__
 
 
 model = Model_unet(model_function=get_unet_vgg16, n_filters=32, dropout = 0.4, batch_size=40)
