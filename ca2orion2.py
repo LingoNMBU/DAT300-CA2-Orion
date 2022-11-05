@@ -133,10 +133,10 @@ def get_unet_vgg16(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n
 import keras_tuner
 from tensorflow import keras
 from numpy.random import seed
-seed(88)
+seed(102)
 def build_tuning_model(hp):
     
-    model = get_unet_vgg19(input_img = Input(shape=(128,128,3)),                          
+    model = get_unet_vgg16(input_img = Input(shape=(128,128,3)),                          
                            n_filters= hp.Int('n_filters', min_value=16, max_value=128, step=16), 
                            dropout = hp.Float('dropout', min_value=0.0, max_value=0.5, step=0.05),
                            batchnorm = True, n_classes = 2, class_activation= 'sigmoid')
@@ -150,7 +150,7 @@ def build_tuning_model(hp):
 
 tuner = keras_tuner.BayesianOptimization(
     hypermodel=build_tuning_model,
-    objective="val_f1_m",
+    objective="val_loss",
     max_trials=100,
     executions_per_trial=1,
     overwrite=False,
@@ -160,4 +160,4 @@ tuner = keras_tuner.BayesianOptimization(
 
 tuner.search_space_summary()
 tuner.search(X_train, y_train, validation_data=(X_test, y_test),
-             epochs=30)
+             epochs=25)
