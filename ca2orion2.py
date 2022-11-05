@@ -124,7 +124,7 @@ def get_unet_vgg16(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n
     u9 = Dropout(dropout)(u9)
     c9 = conv2d_block(u9, n_filters * 1, kernel_size = 3, batchnorm = batchnorm)
     
-    outputs = Conv2D(n_classes, (1, 1), activation=class_activation)(c9)
+    outputs = Conv2D(1, (1, 1), activation=class_activation)(c9)
 
     model = Model(inputs=[input_img], outputs=[outputs])
     return model
