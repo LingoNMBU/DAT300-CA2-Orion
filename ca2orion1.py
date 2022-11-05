@@ -134,7 +134,7 @@ def get_unet_vgg19(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n
 
 import keras_tuner
 from tensorflow import keras
-
+from numpy.random import seed
 seed(88)
 def build_tuning_model(hp):
     
