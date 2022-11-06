@@ -120,11 +120,9 @@ def build_tuning_model(hp):
 tuner = keras_tuner.Hyperband(
     hypermodel=build_tuning_model,
     objective="val_loss",
-    max_trials=100,
+    max_epochs=50,
     executions_per_trial=1,
-    overwrite=False,
-    directory="",
-    project_name="tuner_Hyperband",
+    seed = 8888
 )
 
 tuner.search_space_summary()
