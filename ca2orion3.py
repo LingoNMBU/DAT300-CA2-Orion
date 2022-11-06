@@ -159,5 +159,4 @@ tuner = keras_tuner.RandomSearch(
 )
 
 tuner.search_space_summary()
-tuner.search(X_train, y_train, validation_data=(X_test, y_test),
-             epochs=25, batch_size = 200)
+tuner.search(X_train, y_train, validation_data=(X_test, y_test), epochs=25, batch_size = 200)
