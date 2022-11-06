@@ -148,7 +148,7 @@ def build_tuning_model(hp):
     return model
 
 
-tuner = keras_tuner.BayesianOptimization(
+tuner = keras_tuner.RandomSearch(
     hypermodel=build_tuning_model,
     objective="val_loss",
     max_trials=75,
@@ -160,4 +160,4 @@ tuner = keras_tuner.BayesianOptimization(
 
 tuner.search_space_summary()
 tuner.search(X_train, y_train, validation_data=(X_test, y_test),
-             epochs=25)
+             epochs=25, batch_size = 200)
