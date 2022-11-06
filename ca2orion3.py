@@ -141,7 +141,7 @@ def build_tuning_model(hp):
                            dropout = hp.Float('dropout', min_value=0.0, max_value=0.3, step=0.01),
                            batchnorm = True, n_classes = 2, class_activation= 'sigmoid')
     
-    model.compile(optimizer = Adam(learning_rate = hp.Float("lr", min_value=1e-4, max_value=1e-2, sampling="log") ),
+    model.compile(optimizer = Adam(learning_rate = hp.Float("lr", min_value=1e-4, max_value=0.5e-1, sampling="log") ),
                   loss = "binary_crossentropy", 
                   metrics = ['accuracy', f1_m])
     

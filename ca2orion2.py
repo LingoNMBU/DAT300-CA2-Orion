@@ -124,7 +124,7 @@ def get_unet_vgg16(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n
     u9 = Dropout(dropout)(u9)
     c9 = conv2d_block(u9, n_filters * 1, kernel_size = 3, batchnorm = batchnorm)
     
-    outputs = Conv2D(1, (1, 1), activation=class_activation)(c9)
+    outputs = Conv2D(n_classes, (1, 1), activation=class_activation)(c9)
 
     model = Model(inputs=[input_img], outputs=[outputs])
     return model
@@ -139,25 +139,25 @@ def build_tuning_model(hp):
     model = get_unet_vgg16(input_img = Input(shape=(128,128,3)),                          
                            n_filters= hp.Int('n_filters', min_value=15, max_value=80, step=5), 
                            dropout = hp.Float('dropout', min_value=0.0, max_value=0.4, step=0.01),
-                           batchnorm = True, n_classes = 2, class_activation= 'sigmoid')
+                           batchnorm = True, n_classes = 1, class_activation= 'sigmoid')
     
-    model.compile(optimizer = Adam(learning_rate = hp.Float("lr", min_value=1e-4, max_value=1e-2, sampling="log") ),
+    model.compile(optimizer = Adam(learning_rate = hp.Float("lr", min_value=1e-4, max_value=0.5e-1, sampling="log") ),
                   loss = "binary_crossentropy", 
                   metrics = ['accuracy', f1_m])
     
     return model
 
 
-tuner = keras_tuner.BayesianOptimization(
+tuner = keras_tuner.RandomSearch(
     hypermodel=build_tuning_model,
     objective="val_loss",
     max_trials=100,
     executions_per_trial=1,
     overwrite=False,
     directory="",
-    project_name="helloworld",
+    project_name="tuner_RandomSearch",
 )
 
 tuner.search_space_summary()
 tuner.search(X_train, y_train, validation_data=(X_test, y_test),
-             epochs=25)
+             epochs=25, batch_size=200)
