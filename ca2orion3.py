@@ -138,7 +138,7 @@ def build_tuning_model(hp):
     
     model = get_unet_vgg16(input_img = Input(shape=(128,128,3)),                          
                            n_filters= hp.Int('n_filters', min_value=15, max_value=80, step=5), 
-                           dropout = hp.Float('dropout', min_value=0.0, max_value=0.4, step=0.01),
+                           dropout = hp.Float('dropout', min_value=0.0, max_value=0.3, step=0.01),
                            batchnorm = True, n_classes = 2, class_activation= 'sigmoid')
     
     model.compile(optimizer = Adam(learning_rate = hp.Float("lr", min_value=1e-4, max_value=1e-2, sampling="log") ),
@@ -151,11 +151,11 @@ def build_tuning_model(hp):
 tuner = keras_tuner.BayesianOptimization(
     hypermodel=build_tuning_model,
     objective="val_loss",
-    max_trials=100,
+    max_trials=75,
     executions_per_trial=1,
     overwrite=False,
     directory="",
-    project_name="helloworld",
+    project_name="vgg16_m2",
 )
 
 tuner.search_space_summary()
