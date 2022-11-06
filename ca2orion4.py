@@ -127,8 +127,5 @@ tuner = keras_tuner.Hyperband(
     project_name="tuner_Hyperband",
 )
 
-from tf.keras.callbacks import EarlyStopping
-es = EarlyStopping(monitor='val_loss', mode='max', patience=5,  restore_best_weights=True)
-
 tuner.search_space_summary()
-tuner.search(X_train, y_train, validation_data=(X_test, y_test), epochs=25, batch_size=200, callbacks = [es])
+tuner.search(X_train, y_train, validation_data=(X_test, y_test), epochs=25, batch_size=200)
