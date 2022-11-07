@@ -164,5 +164,5 @@ tuner = keras_tuner.BayesianOptimization(
 )
 
 tuner.search_space_summary()
-tuner.search(X_train, y_train, validation_data=(X_test, y_test), epochs=30, batch_size=50, ,
+tuner.search(X_train, y_train, validation_data=(X_test, y_test), epochs=30, batch_size=50,
              callbacks=[tensorflow.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)])
