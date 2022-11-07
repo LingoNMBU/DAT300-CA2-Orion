@@ -66,51 +66,67 @@ def conv2d_block(input_tensor, n_filters, kernel_size = 3, batchnorm = True):
     
     return x
 
-from tensorflow.keras.applications import VGG16
-from keras.models import Model
 
-def get_unet_vgg16_2(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n_classes = 2, class_activation= 'sigmoid'):
+def get_expanded_unet_2(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n_classes = 2, class_activation= 'sigmoid'):
+    # Contracting Path
+    c1 = conv2d_block(input_img, n_filters * 1, kernel_size = 3, batchnorm = batchnorm)
+    p1 = MaxPooling2D((2, 2))(c1)
+    p1 = Dropout(dropout)(p1)
     
-    vgg16 = VGG16(include_top=False, weights="imagenet", input_tensor=input_img, classes = 2)
-    vgg16 = Model(vgg16.input, vgg16.layers[-2].output)   
-    vgg16.trainable = True ## Not trainable weights
-
-    # Contracting Path    
-    c1 = vgg16.get_layer("block1_conv2").output
-    #c1.trainable = False ## Not trainable weights
-    c2 = vgg16.get_layer("block2_conv2").output   
-    #c2.trainable = False ## Not trainable weights
-    c3 = vgg16.get_layer("block3_conv3").output 
-    #c3.trainable = False ## Not trainable weights
-    c4 = vgg16.get_layer("block4_conv3").output 
-    #c4.trainable = False ## Not trainable weights
+    c2 = conv2d_block(p1, n_filters * 2, kernel_size = 3, batchnorm = batchnorm)
+    p2 = MaxPooling2D((2, 2))(c2)
+    p2 = Dropout(dropout)(p2)
     
-    # Bridge
-    c5 = vgg16.get_layer("block5_conv3").output
+    c3 = conv2d_block(p2, n_filters * 4, kernel_size = 3, batchnorm = batchnorm)
+    p3 = MaxPooling2D((2, 2))(c3)
+    p3 = Dropout(dropout)(p3)
+    
+    c4 = conv2d_block(p3, n_filters * 8, kernel_size = 3, batchnorm = batchnorm)
+    p4 = MaxPooling2D((2, 2))(c4)
+    p4 = Dropout(dropout)(p4)
+    
+    c5 = conv2d_block(p4, n_filters * 16, kernel_size = 3, batchnorm = batchnorm)
+    p5 = MaxPooling2D((2, 2))(c5)
+    p5 = Dropout(dropout)(p5)
+    
+    c55 = conv2d_block(p5, n_filters * 32, kernel_size = 3, batchnorm = batchnorm)
+    #p55 = MaxPooling2D((2, 2))(c55)
+    p55 = Dropout(dropout)(c55)
+    
+    c6 = conv2d_block(p55, n_filters = n_filters * 32, kernel_size = 3, batchnorm = batchnorm)
     
     # Expansive Path
-    u6 = Conv2DTranspose(n_filters * 8, (3, 3), strides = (2, 2), padding = 'same')(c5)
-    u6 = concatenate([u6, c4])
-    u6 = Dropout(dropout)(u6)
-    c6 = conv2d_block(u6, n_filters * 8, kernel_size = 3, batchnorm = batchnorm)
+    u65 = Conv2DTranspose(n_filters * 32, (3, 3), strides = (1, 1), padding = 'same')(c6)
+    u65 = concatenate([u65, c55])
+    u65 = Dropout(dropout)(u65)
+    c65 = conv2d_block(u65, n_filters * 32, kernel_size = 3, batchnorm = batchnorm)
     
-    u7 = Conv2DTranspose(n_filters * 4, (3, 3), strides = (2, 2), padding = 'same')(c6)
-    u7 = concatenate([u7, c3])
+    u7 = Conv2DTranspose(n_filters * 16, (3, 3), strides = (1, 1), padding = 'same')(c6)
+    u7 = concatenate([u7, c55])
     u7 = Dropout(dropout)(u7)
-    c7 = conv2d_block(u7, n_filters * 4, kernel_size = 3, batchnorm = batchnorm)
+    c7 = conv2d_block(u7, n_filters * 16, kernel_size = 3, batchnorm = batchnorm)
     
-    u8 = Conv2DTranspose(n_filters * 2, (3, 3), strides = (2, 2), padding = 'same')(c7)
-    u8 = concatenate([u8, c2])
+    u8 = Conv2DTranspose(n_filters * 8, (3, 3), strides = (4, 4), padding = 'same')(c7)
+    u8 = concatenate([u8, c4])
     u8 = Dropout(dropout)(u8)
-    c8 = conv2d_block(u8, n_filters * 2, kernel_size = 3, batchnorm = batchnorm)
+    c8 = conv2d_block(u8, n_filters * 8, kernel_size = 3, batchnorm = batchnorm)
     
-    u9 = Conv2DTranspose(n_filters * 1, (3, 3), strides = (2, 2), padding = 'same')(c8)
-    u9 = concatenate([u9, c1])
+    u9 = Conv2DTranspose(n_filters * 4, (3, 3), strides = (2, 2), padding = 'same')(c8)
+    u9 = concatenate([u9, c3])
     u9 = Dropout(dropout)(u9)
-    c9 = conv2d_block(u9, n_filters * 1, kernel_size = 3, batchnorm = batchnorm)
+    c9 = conv2d_block(u9, n_filters * 4, kernel_size = 3, batchnorm = batchnorm)
     
-    outputs = Conv2D(n_classes, (1, 1), activation=class_activation)(c9)
-
+    u10 = Conv2DTranspose(n_filters * 2, (3, 3), strides = (2, 2), padding = 'same')(c9)
+    u10 = concatenate([u10, c2])
+    u10 = Dropout(dropout)(u10)
+    c10 = conv2d_block(u10, n_filters * 2, kernel_size = 3, batchnorm = batchnorm)
+    
+    u11 = Conv2DTranspose(n_filters * 1, (3, 3), strides = (2, 2), padding = 'same')(c10)
+    u11 = concatenate([u11, c1])
+    u11 = Dropout(dropout)(u11)
+    c11 = conv2d_block(u11, n_filters * 1, kernel_size = 3, batchnorm = batchnorm)
+    
+    outputs = Conv2D(n_classes, (1, 1), activation=class_activation)(c11)
     model = Model(inputs=[input_img], outputs=[outputs])
     return model
 from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPooling2D, Dropout, Conv2DTranspose, concatenate
@@ -124,9 +140,9 @@ from numpy.random import seed
 seed(102)
 def build_tuning_model(hp):
     
-    model = get_unet_vgg16_2(input_img = Input(shape=(128,128,3)),                          
-                           n_filters= hp.Int('n_filters', min_value=15, max_value=80, step=5), 
-                           dropout = hp.Float('dropout', min_value=0.0, max_value=0.4, step=0.01),
+    model = get_expanded_unet_2(input_img = Input(shape=(128,128,3)),                          
+                           n_filters= hp.Int('n_filters', min_value=15, max_value=80, sampling="linear"), 
+                           dropout = hp.Float('dropout', min_value=0.0, max_value=0.4, sampling="linear"),
                            batchnorm = True, n_classes = 1, class_activation= 'sigmoid')
     
     model.compile(optimizer = Adam(learning_rate = hp.Float("lr", min_value=1e-5, max_value=0.5e-1, sampling="log") ),
@@ -136,13 +152,17 @@ def build_tuning_model(hp):
     return model
 
 
-tuner = keras_tuner.Hyperband(
+tuner = keras_tuner.BayesianOptimization(
     hypermodel=build_tuning_model,
     objective="val_loss",
-    max_epochs=50,
+    max_trials=100,
     executions_per_trial=1,
-    seed = 8888
+    overwrite=False,
+    directory="",
+    project_name="exp_unet_bay",
+    seed=666
 )
 
 tuner.search_space_summary()
-tuner.search(X_train, y_train, validation_data=(X_test, y_test), epochs=25, batch_size=200)
+tuner.search(X_train, y_train, validation_data=(X_test, y_test), epochs=30, batch_size=50, ,
+             callbacks=[tensorflow.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)])
