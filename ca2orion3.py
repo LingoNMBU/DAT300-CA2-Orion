@@ -1,7 +1,7 @@
 import h5py
 import numpy as np
 import random
-import tensorflow
+import tensorflow 
 import keras
 from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, MaxPooling2D, Dropout, Conv2DTranspose, concatenate
 from tensorflow.keras.models import Model
@@ -133,12 +133,11 @@ def get_unet_vgg16(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n
 import keras_tuner
 from tensorflow import keras
 from numpy.random import seed
-seed(102)
 def build_tuning_model(hp):
     
     model = get_unet_vgg16(input_img = Input(shape=(128,128,3)),                          
-                           n_filters= hp.Int('n_filters', min_value=15, max_value=80, step=5), 
-                           dropout = hp.Float('dropout', min_value=0.0, max_value=0.3, step=0.01),
+                           n_filters= hp.Int('n_filters', min_value=15, max_value=80, sampling="linear"), 
+                           dropout = hp.Float('dropout', min_value=0.0, max_value=0.35, sampling="linear"),
                            batchnorm = True, n_classes = 2, class_activation= 'sigmoid')
     
     model.compile(optimizer = Adam(learning_rate = hp.Float("lr", min_value=1e-4, max_value=0.5e-1, sampling="log") ),
@@ -148,15 +147,18 @@ def build_tuning_model(hp):
     return model
 
 
-tuner = keras_tuner.RandomSearch(
+tuner = keras_tuner.BayesianOptimization(
     hypermodel=build_tuning_model,
     objective="val_loss",
-    max_trials=75,
+    max_trials=100,
     executions_per_trial=1,
     overwrite=False,
     directory="",
-    project_name="vgg16_m2",
+    project_name="exp_unet_bay",
+    seed=102
 )
-
 tuner.search_space_summary()
-tuner.search(X_train, y_train, validation_data=(X_test, y_test), epochs=25, batch_size = 200)
+tuner.search(X_train, y_train, validation_data=(X_test, y_test), epochs=25, batch_size = 50,
+             callbacks=[tensorflow.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)])
+
+
