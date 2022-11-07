@@ -157,9 +157,9 @@ tuner = keras_tuner.BayesianOptimization(
     objective="val_loss",
     max_trials=100,
     executions_per_trial=1,
-    overwrite=False,
+    overwrite=True,
     directory="",
-    project_name="exp_unet_bay",
+    project_name="exp_unet_bay_es",
     seed=666
 )
 
