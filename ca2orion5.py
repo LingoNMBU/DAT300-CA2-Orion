@@ -138,7 +138,7 @@ def build_tuning_model(hp):
     
     return model
 
-class CVTuner(kerastuner.engine.tuner.Tuner):
+class CVTuner(keras_tuner.engine.tuner.Tuner):
   def run_trial(self, trial, x, y, batch_size=40, epochs=1):
     cv = model_selection.KFold(5)
     val_losses = []
@@ -153,7 +153,7 @@ class CVTuner(kerastuner.engine.tuner.Tuner):
     
 
 tuner = CVTuner(hypermodel=build_tuning_model,
-                oracle=kerastuner.oracles.BayesianOptimization(objective='val_loss', 
+                oracle=keras_tuner.oracles.BayesianOptimization(objective='val_loss', 
                                                                max_trials=40,))
 tuner.search_space_summary()
 x, y = X_train, y_train  # NumPy data
