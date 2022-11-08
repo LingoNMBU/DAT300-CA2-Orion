@@ -153,9 +153,8 @@ class CVTuner(keras_tuner.engine.tuner.Tuner):
     
 
 tuner = CVTuner(hypermodel=build_tuning_model,
-                oracle=keras_tuner.oracles.BayesianOptimization(objective='val_loss', 
-                                                               max_trials=40,
-                                                               num_initial_points=None))
+                oracle=keras_tuner.oracles.HyperbandOracle((objective='val_loss', 
+                                                               max_epochs=50,)
 tuner.search_space_summary()
 x, y = X_train, y_train  # NumPy data
 tuner.search(x, y, batch_size=64, epochs=30, overwrite=True)
