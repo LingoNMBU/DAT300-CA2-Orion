@@ -118,6 +118,7 @@ import tensorflow as tf
 import keras_tuner
 from tensorflow import keras
 from numpy.random import seed
+tf.enable_eager_execution()
 seed(102)
 
 from sklearn import model_selection
