@@ -153,8 +153,10 @@ class CVTuner(keras_tuner.engine.tuner.Tuner):
     
 
 tuner = CVTuner(hypermodel=build_tuning_model,
-                oracle=keras_tuner.oracles.HyperbandOracle(objective='val_loss', max_epochs=50,))
+                oracle=keras_tuner.oracles.HyperbandOracle(objective='val_loss', max_epochs=50))
 
 tuner.search_space_summary()
 
+tuner.search(X_train, y_train , batch_size=64, epochs=30)
+tuner.search_space_summary()
 tuner.search(X_train, y_train , batch_size=64, epochs=30)
