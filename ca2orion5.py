@@ -140,6 +140,9 @@ def build_tuning_model(hp):
 
 class CVTuner(keras_tuner.engine.tuner.Tuner):
   def run_trial(self, trial, x, y, batch_size=40, epochs=1):
+    
+    self.project_name = 'unet2'
+
     cv = model_selection.KFold(5)
     val_losses = []
     for train_indices, test_indices in cv.split(x):
@@ -149,7 +152,7 @@ class CVTuner(keras_tuner.engine.tuner.Tuner):
       model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
       val_losses.append(model.evaluate(x_test, y_test))
     self.oracle.update_trial(trial.trial_id, {'val_loss': np.mean(val_losses)})
-    self.save_model(trial.trial_id, model)   
+    #self.save_model(trial.trial_id, model)   
     
 
 tuner = CVTuner(hypermodel=build_tuning_model,
