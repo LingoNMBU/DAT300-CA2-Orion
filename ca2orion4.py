@@ -59,13 +59,12 @@ def conv2d_block(input_tensor, n_filters, kernel_size = 3, batchnorm = True, str
     
     # second layer
     x = Conv2D(filters = n_filters, kernel_size = (kernel_size, kernel_size),\
-              kernel_initializer = 'he_normal', padding = 'same', strides=strides)(x)
+              kernel_initializer = 'he_normal', padding = 'same')(x)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
     return x
-
 
 def get_unet3(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n_classes = 2, class_activation= 'sigmoid'):
     # Contracting Path
