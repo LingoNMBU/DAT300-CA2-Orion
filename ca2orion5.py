@@ -123,7 +123,7 @@ from numpy.random import seed
 seed(102)
 
 from sklearn import model_selection
-import kerastuner
+import keras_tuner
 
 def build_tuning_model(hp):
     
