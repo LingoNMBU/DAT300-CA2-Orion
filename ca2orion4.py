@@ -139,6 +139,8 @@ def build_tuning_model(hp):
 
 class CVTuner(keras_tuner.engine.tuner.Tuner):
   def run_trial(self, trial, x, y, batch_size=40, epochs=1):
+    self.oracle.create_trial(111)
+
     cv = model_selection.KFold(5)
     val_losses = []
     for train_indices, test_indices in cv.split(x):
