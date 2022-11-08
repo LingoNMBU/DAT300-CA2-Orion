@@ -71,11 +71,11 @@ def get_unet2(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n_clas
     # Contracting Path
     c1 = conv2d_block(input_img, n_filters * 1, kernel_size = 3, batchnorm = batchnorm)
     #p1 = MaxPooling2D((2, 2))(c1)
-    p1 = conv2d_block(c1, n_filters * 1, kernel_size = 3, batchnorm = batchnorm, strides=(1,1))
+    p1 = conv2d_block(c1, n_filters * 1, kernel_size = 3, batchnorm = batchnorm, strides=(2,2))
     p1 = Dropout(dropout)(p1)
     
     c2 = conv2d_block(p1, n_filters * 2, kernel_size = 3, batchnorm = batchnorm)
-    p2 = conv2d_block((c2), n_filters * 2, kernel_size = 3, batchnorm = batchnorm, strides=(1,1))
+    p2 = conv2d_block((c2), n_filters * 2, kernel_size = 3, batchnorm = batchnorm, strides=(2,2))
     p2 = Dropout(dropout)(p2)
     
     c3 = conv2d_block(p2, n_filters * 4, kernel_size = 3, batchnorm = batchnorm)
@@ -94,17 +94,17 @@ def get_unet2(input_img, n_filters = 16, dropout = 0.1, batchnorm = True, n_clas
     u6 = Dropout(dropout)(u6)
     c6 = conv2d_block(u6, n_filters * 8, kernel_size = 3, batchnorm = batchnorm)
     
-    u7 = Conv2DTranspose(n_filters * 4, (3, 3), strides = (2, 2), padding = 'same')(c6)
+    u7 = Conv2DTranspose(n_filters * 4, (3, 3), strides = (4, 4), padding = 'same')(c6)
     u7 = concatenate([u7, c3])
     u7 = Dropout(dropout)(u7)
     c7 = conv2d_block(u7, n_filters * 4, kernel_size = 3, batchnorm = batchnorm)
     
-    u8 = Conv2DTranspose(n_filters * 2, (3, 3), strides = (2, 2), padding = 'same')(c7)
+    u8 = Conv2DTranspose(n_filters * 2, (3, 3), strides = (4, 4), padding = 'same')(c7)
     u8 = concatenate([u8, c2])
     u8 = Dropout(dropout)(u8)
     c8 = conv2d_block(u8, n_filters * 2, kernel_size = 3, batchnorm = batchnorm)
     
-    u9 = Conv2DTranspose(n_filters * 1, (3, 3), strides = (2, 2), padding = 'same')(c8)
+    u9 = Conv2DTranspose(n_filters * 1, (3, 3), strides = (4, 4), padding = 'same')(c8)
     u9 = concatenate([u9, c1])
     u9 = Dropout(dropout)(u9)
     c9 = conv2d_block(u9, n_filters * 1, kernel_size = 3, batchnorm = batchnorm)
