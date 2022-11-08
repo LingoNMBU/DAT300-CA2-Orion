@@ -154,7 +154,8 @@ class CVTuner(kerastuner.engine.tuner.Tuner):
 
 tuner = CVTuner(hypermodel=build_tuning_model,
                 oracle=kerastuner.oracles.BayesianOptimization(objective='val_loss', 
-                                                               max_trials=40))
+                                                               max_trials=40,
+                                                               overwrite=True,))
 tuner.search_space_summary()
 x, y = X_train, y_train  # NumPy data
-tuner.search(x, y, batch_size=64, epochs=30)
+tuner.search(x, y, batch_size=64, epochs=30, overwrite=True)
