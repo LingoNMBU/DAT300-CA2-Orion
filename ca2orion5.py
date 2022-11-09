@@ -157,7 +157,7 @@ class CVTuner(keras_tuner.engine.tuner.Tuner):
 
 tuner = CVTuner(hypermodel=build_tuning_model,
                 oracle=keras_tuner.oracles.HyperbandOracle(objective='val_loss', max_epochs=50),
-             callbacks=[tensorflow.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5))
+             callbacks=[tensorflow.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)])
 
 tuner.search_space_summary()
 
